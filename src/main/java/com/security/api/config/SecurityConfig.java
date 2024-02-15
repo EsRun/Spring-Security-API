@@ -29,30 +29,23 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
-			.csrf((csrf) -> csrf.disable()) 
-			.cors(Customizer.withDefaults())
-			.httpBasic(Customizer.withDefaults())
+			.csrf((csrf) -> csrf.disable())// Cross-Side Request Forgery, 사이트 간 요청 위조(사용자 의지와는 무관하게 특정 웹 사이트에 요청하게 하는 공격을 의미
+			.cors(Customizer.withDefaults())// Cross Origin Resource Sharing, 교차 출처 리소스 공유(동일한 출처, 프로토콜/도메인/포트 중 하나라도 다르면 cors 에러 발생)
 			.authorizeHttpRequests((requests) -> requests
 				.requestMatchers("/", "/login").permitAll()
 				.anyRequest().authenticated()
 			)
-			.formLogin((form) -> form
-					.disable())            
+			.formLogin((form) -> form.disable())// 시큐리티에서 제공하는 기본 로그인 폼     
+			.httpBasic(Customizer.withDefaults())// 아이디 비번호를 base64 방식으로 인코딩한 후 http 헤더에 붙여 서버측으로 요청을 보내는 방식
             .logout((logout) -> logout
 					.logoutUrl("/logout")
-					.logoutSuccessUrl("/logout")
+					.logoutSuccessUrl("/")
 					.invalidateHttpSession(true)
+					.clearAuthentication(true)
 					.deleteCookies("JSESSIONID")
-					);
-			/*
-			.formLogin((form) -> form
-				.loginPage("/login")
-				.permitAll()
-			)
-			.logout((logout) -> logout
-					.logoutUrl("/logout")
-					.permitAll());
-			 */
+					)
+            .exceptionHandling((exception) -> exception.accessDeniedPage("/notFound"));
+
 		return http.build();
 	}
 
