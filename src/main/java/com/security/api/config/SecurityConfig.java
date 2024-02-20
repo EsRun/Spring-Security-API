@@ -79,9 +79,15 @@ public class SecurityConfig {
 		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
 	}
 	
+	/*
+	 * 인증 이벤트 처리
+	 * ApplicationEvent <- AbstractAuthenticationEvent <- AuthenticationSuccessEvent
+	 * AuthenticationEventPublisher(인터페이스) <- DefaultAuthenticationEventPublisher(구현체)
+	 */
 	@Bean
 	public AuthenticationEventPublisher authenticationEventPublisher
 	        (ApplicationEventPublisher applicationEventPublisher) {
+		
 	    return new DefaultAuthenticationEventPublisher(applicationEventPublisher);
 	}
 
