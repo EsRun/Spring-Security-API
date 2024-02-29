@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,15 +20,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
 public class SecurityController {
 	
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	
 	private final AuthenticationManager authenticationManager;
-
+	SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+	
 	public SecurityController(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
 	}
@@ -55,7 +58,8 @@ public class SecurityController {
 	}
 
 	@PostMapping("/logout")
-	public String logout() {
+	public String logout(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
+		logoutHandler.logout(request, response, authentication);
 		log.info("logOut");
 		return "logOut";
 	}

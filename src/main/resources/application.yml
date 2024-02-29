@@ -27,3 +27,6 @@ logging:
               BasicBinder: TRACE
       springframework:
         security: DEBUG
+        
+server:
+  port: 8989
