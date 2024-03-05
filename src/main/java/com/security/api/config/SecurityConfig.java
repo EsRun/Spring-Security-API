@@ -21,9 +21,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.security.api.handler.CustomLogoutHandler;
+import com.security.api.handler.CustomLogoutSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -35,14 +40,16 @@ public class SecurityConfig {
 			.csrf((csrf) -> csrf.disable())// Cross-Side Request Forgery, 사이트 간 요청 위조(사용자 의지와는 무관하게 특정 웹 사이트에 요청하게 하는 공격을 의미
 			.cors(Customizer.withDefaults())// Cross Origin Resource Sharing, 교차 출처 리소스 공유(동일한 출처, 프로토콜/도메인/포트 중 하나라도 다르면 cors 에러 발생)
 			.authorizeHttpRequests((requests) -> requests
-				.requestMatchers("/", "/login").permitAll()
+				.requestMatchers("/login", "/after").permitAll()
 				.anyRequest().authenticated()
 			)
 			.formLogin((form) -> form.disable())// 시큐리티에서 제공하는 기본 로그인 폼     
 			.httpBasic(Customizer.withDefaults())// 아이디 비번호를 base64 방식으로 인코딩한 후 http 헤더에 붙여 서버측으로 요청을 보내는 방식
             .logout((logout) -> logout
-					.logoutUrl("/logout")
-					.logoutSuccessUrl("/")
+					.logoutUrl("/logout")// 별도로 logout 컨트롤러를 만들 필요는 없다.
+					.logoutSuccessUrl("/after")
+					.addLogoutHandler(logoutHander())
+					.logoutSuccessHandler(logoutSuccessHandler())
 					.invalidateHttpSession(true)
 					.clearAuthentication(true)
 					.deleteCookies("JSESSIONID")
@@ -91,4 +98,15 @@ public class SecurityConfig {
 	    return new DefaultAuthenticationEventPublisher(applicationEventPublisher);
 	}
 
+	@Bean
+	public LogoutHandler logoutHander() {
+		return new CustomLogoutHandler();
+	}
+	
+	@Bean
+	public LogoutSuccessHandler logoutSuccessHandler() {
+		return new CustomLogoutSuccessHandler();
+	}
+	
+	
 }

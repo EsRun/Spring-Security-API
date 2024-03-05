@@ -41,6 +41,11 @@ public class SecurityController {
 		return "index";
 	}
 	
+	@GetMapping("/after")
+	public String after() {
+		return "after";
+	}
+	
 	@GetMapping("/page")
 	public String page() {
 		log.info("로그인 성공");
@@ -53,17 +58,10 @@ public class SecurityController {
 		Authentication authenticationResponse =	this.authenticationManager.authenticate(authenticationRequest);
 		SecurityContextHolder.getContext().setAuthentication(authenticationResponse);
 		UserDetails user = (UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        log.info("login userName= ", user.getUsername());
+        log.info("login userName= "+user.getUsername());
         return "redirect:/page";
 	}
 
-	@PostMapping("/logout")
-	public String logout(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
-		logoutHandler.logout(request, response, authentication);
-		log.info("logOut");
-		return "logOut";
-	}
-	
 	@GetMapping("notFound")
 	public void notFound() throws Exception {
 		throw new Exception("404");
